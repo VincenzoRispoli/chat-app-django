@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="login-page">
+  <h1>Login Page</h1>
+  <p id="wrongDataParagraph" style="color: red"></p>
+  <form name="myForm" id="formLogin" onsubmit="loginForm(); return false" method="POST">
+    {% csrf_token %}
+    <input type="hidden" id="redirect" name="redirect" value="{{ redirect }}">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      <input onfocus="removeErrorMessage()" class="mdl-textfield__input" id="username" name="username" type="text"
+        id="sample3" min="3">
+      <label class="mdl-textfield__label" for="sample3">Username...</label>
+    </div>
+    <span style="color: red; padding: 8px;" id="usernameError"></span>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      <input onfocus="removeErrorMessage()" class="mdl-textfield__input" id="password" name="password" type="password"
+        id="sample3" min="6">
+      <label class="mdl-textfield__label" for="sample3">Password...</label>
+    </div>
+    <span style="color: red; padding: 8px;" id="passwordError"></span>
+    <button id="btn" type="submit" class="mdl-button mdl-js-button mdl-button--raised">
+      Let's go!
+    </button>
+  </form>
+  <div class="paragraph-login mt-32">
+    <p>If you are not registered, please click <a href="/register">here</a></p>
+  </div>
+</div>
+
+<script>
+
+
+  async function loginForm() {
+    let Username = document.forms['myForm']['username'].value;
+    let Password = document.forms['myForm']['password'].value;
+    if (Username.length < 3) {
+      document.getElementById('usernameError').innerHTML = 'Username is too short, he must to have at least 3 characters';
+    } else if (Password.length <= 6) {
+      document.getElementById('passwordError').innerHTML = 'Password is too short, she must to have at least 6 characters';
+    } else {
+      let fd = new FormData();
+      let csrf_token = '{{ csrf_token }}';
+      fd.append('csrfmiddlewaretoken', csrf_token);
+      fd.append('redirect', redirect.value);
+      fd.append('username', username.value);
+      fd.append('password', password.value);
+      try {
+        let response = await fetch('/login/', {
+          method: 'POST',
+          body: fd
+        })
+        if (response.ok) {
+          let data = await response.json();
+          window.location.href = data.url;
+        } else {
+          document.getElementById('wrongDataParagraph').innerHTML = 'Username or password are falsy'
+        }
+      } catch (e) {
+        console.error("An error was occurred", e);
+      }
+      username.value = "";
+      password.value = "";
+    }
+  }
+
+  username.addEventListener('input', () => {
+    if (username.value.length >= 3) {
+      document.getElementById('usernameError').innerHTML = ''
+    }
+  })
+
+  password.addEventListener('input', (e) => {
+    if (password.value.length >= 6) {
+      document.getElementById('passwordError').innerHTML = ''
+    }
+  })
+
+  function removeErrorMessage() {
+    document.getElementById('wrongDataParagraph').innerHTML = '';
+  }
+
+
+</script>
+
+{% endblock %}

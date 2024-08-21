@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="demo-layout-transparent mdl-layout mdl-js-layout">
+  {% if request.user.is_authenticated %}
+  <header class="mdl-layout__header mdl-layout__header--transparent">
+    <div class="mdl-layout__header-row">
+      <!-- Title -->
+      <span class="mdl-layout-title">Hello {{request.user.username}}!</span>
+      <!-- Add spacer, to align navigation to the right -->
+      <div class="mdl-layout-spacer"></div>
+      <!-- Navigation -->
+      <nav class="mdl-navigation">
+        <a class="mdl-navigation__link" href="">Link</a>
+        <a class="mdl-navigation__link" href="">Link</a>
+        <a class="mdl-navigation__link" href="">Link</a>
+        <a class="mdl-navigation__link" href="">Link</a>
+      </nav>
+    </div>
+  </header>
+  <div class="mdl-layout__drawer">
+    <span class="mdl-layout-title">Chatroom</span>
+    <nav class="mdl-navigation">
+      <a class="mdl-navigation__link" href="">Link</a>
+      <a class="mdl-navigation__link" href="">Link</a>
+      <a class="mdl-navigation__link" href="">Link</a>
+      <a class="mdl-navigation__link" href="">Link</a>
+    </nav>
+  </div>
+  <main class="mdl-layout__content" id="main-container">
+    <div id="messageContainer">
+      {% for message in messages %}
+      {% if request.user.username == message.author.username %}
+      <div class="author-message">
+        <span class="date">{{message.created_at}}</span>
+        <div style="display: flex; justify-content: flex-end;">
+          <span class="name-and-text" style="border-radius: 30px 30px 0px 30px;">{{message.author.username}} :
+            <i>{{message.text}}</i></span>
+        </div>
+      </div>
+      {% else %}
+      <div class="message">
+        <span class="date">{{message.created_at}}</span>
+        <div style="display:flex; justify-content: flex-start">
+          <span class="name-and-text">{{message.author.username}} : <i>{{message.text}}</i></span>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </main>
+  <div class="messBoxContainer">
+    <div class="textBox">
+      <form onsubmit="sendMessage();return false" method="POST">
+        {% csrf_token %}
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" id="messageField" name="textmessage" type="text" id="sample3">
+          <label class="mdl-textfield__label" for="messageField">Text...</label>
+        </div>
+        <button id="btn" type="submit" class="mdl-button mdl-js-button mdl-button--raised">
+          Send
+        </button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <div class="goToLoginContainer">
+    <p class="goToLoginText">You have first to log in, you can go <a href="/login">here</a></p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+
+  async function sendMessage() {
+    let fd = new FormData();
+    let csrf_token = '{{ csrf_token }}';
+    let user = '{{request.user.username}}';
+    let author = '{{message.author.author}}';
+    fd.append('csrfmiddlewaretoken', csrf_token);
+    fd.append('textmessage', messageField.value)
+    let date = getDate()
+    try {
+      let response = await fetch('/chat/', {
+        method: 'POST',
+        body: fd
+      })
+      let json = await response.json();
+      let parsedJson = JSON.parse(json)
+      console.log(parsedJson);
+
+      if (user == author) {
+        messageContainer.innerHTML += `
+      <div class="message" id="messageJs">
+        <span class="date">${date}</span>
+        <div style="display:flex; justify-content: flex-end">
+          <span class="name-and-text-author";>${user} : <i></i> </span>
+        </div>
+       </div>
+      `
+      document.getElementById('messageJs').remove();
+        messageContainer.innerHTML += `
+       <div class="message">
+        <span class="date">{{message.created_at}}</span>
+        <div style="display:flex; justify-content: flex-end">
+          <span class="name-and-text-author";>${user} : <i></i></span>
+        </div>
+       </div>
+        `
+        messageField.value = "";
+        console.log("Success");
+      } else {
+        messageContainer.innerHTML += `
+      <div class="message" id="messageJs">
+        <span class="date">{{message.created_at}}</span>
+        <div style="display:flex; justify-content: flex-end">
+          <span class="name-and-text">${user} : <i>${messageField.value}</i></span>
+        </div>
+       </div>
+      `
+        document.getElementById('messageJs').remove();
+        messageContainer.innerHTML += `
+        <div class="message">
+        <span class="date">${date}</span>
+        <div style="display:flex; justify-content: flex-end">
+          <span class="name-and-text">${user} : <i>${messageField.value}</i></span>
+        </div>
+       </div>
+        `
+        messageField.value = "";
+        console.log("Success");
+      }
+    } catch (e) {
+      console.error("An error occurred", e)
+    }
+  }
+
+  function getDate() {
+    let today = new Date()
+    let mm = today.toLocaleString('default', { month: 'short' })
+    let dd = String(today.getDate()).padStart(2, '0');
+    let yyyy = String(today.getFullYear());
+    let date = `${mm}, ${dd}, ${yyyy}`
+    return date
+  }
+</script>
+
+{% endblock %}
