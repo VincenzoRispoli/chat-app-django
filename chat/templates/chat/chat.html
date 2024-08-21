@@ -53,7 +53,7 @@
     <div class="textBox">
       <form onsubmit="sendMessage();return false" method="POST">
         {% csrf_token %}
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%">
           <input class="mdl-textfield__input" id="messageField" name="textmessage" type="text" id="sample3">
           <label class="mdl-textfield__label" for="messageField">Text...</label>
         </div>
@@ -76,7 +76,7 @@
     let fd = new FormData();
     let csrf_token = '{{ csrf_token }}';
     let user = '{{request.user.username}}';
-    let author = '{{message.author.author}}';
+    let author = '{{message}}';
     fd.append('csrfmiddlewaretoken', csrf_token);
     fd.append('textmessage', messageField.value)
     let date = getDate()
@@ -85,54 +85,34 @@
         method: 'POST',
         body: fd
       })
-      let json = await response.json();
-      let parsedJson = JSON.parse(json)
-      console.log(parsedJson);
+      let responseAsJson = await response.json();
+      let parsedResponse = JSON.parse(responseAsJson);
+      console.log(parsedResponse);
+      console.log(author);
 
-      if (user == author) {
-        messageContainer.innerHTML += `
-      <div class="message" id="messageJs">
-        <span class="date">${date}</span>
+      messageContainer.innerHTML += `
+      <div class="message" id="messageJs";>
+        <span class="date">{{message.created_at}}</span>
         <div style="display:flex; justify-content: flex-end">
-          <span class="name-and-text-author";>${user} : <i></i> </span>
+          <span class="name-and-text-author">${user} : <i style="color: gray">${messageField.value}</i></span>
         </div>
-       </div>
+      </div>
       `
+      console.log("Success");
       document.getElementById('messageJs').remove();
-        messageContainer.innerHTML += `
-       <div class="message">
-        <span class="date">{{message.created_at}}</span>
-        <div style="display:flex; justify-content: flex-end">
-          <span class="name-and-text-author";>${user} : <i></i></span>
-        </div>
-       </div>
-        `
-        messageField.value = "";
-        console.log("Success");
-      } else {
-        messageContainer.innerHTML += `
-      <div class="message" id="messageJs">
-        <span class="date">{{message.created_at}}</span>
-        <div style="display:flex; justify-content: flex-end">
-          <span class="name-and-text">${user} : <i>${messageField.value}</i></span>
-        </div>
-       </div>
-      `
-        document.getElementById('messageJs').remove();
-        messageContainer.innerHTML += `
+      messageContainer.innerHTML += `
         <div class="message">
-        <span class="date">${date}</span>
-        <div style="display:flex; justify-content: flex-end">
-          <span class="name-and-text">${user} : <i>${messageField.value}</i></span>
+          <span class="date">${date}</span>
+          <div style="display:flex; justify-content: flex-end">
+            <span class="name-and-text-author">${user} : <i>${parsedResponse.fields.text}</i></span>
+          </div>
         </div>
-       </div>
         `
-        messageField.value = "";
-        console.log("Success");
-      }
     } catch (e) {
-      console.error("An error occurred", e)
+      console.log('An error is occurred', e);
     }
+
+    messageField.value = "";
   }
 
   function getDate() {
