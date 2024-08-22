@@ -6,17 +6,17 @@
     <div>
         <form name="registerForm" onsubmit="register(); return false" method='POST'>
             {% csrf_token %}
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%">
                 <input class="mdl-textfield__input" id="username" name="username" min="3" type="text" id="sample3">
                 <label class="mdl-textfield__label" for="sample3">Username...</label>
             </div>
             <span style="color: red" id="usernameError"></span>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%">
                 <input class="mdl-textfield__input" id="email" name="email" type="email" id="sample3">
                 <label class="mdl-textfield__label" for="sample3">Email...</label>
             </div>
             <span style="color: red" id="emailError"></span>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%">
                 <input class="mdl-textfield__input" id="password" name="password" type="password" id="sample3" min="6">
                 <label class="mdl-textfield__label" for="sample3">Password...</label>
             </div>

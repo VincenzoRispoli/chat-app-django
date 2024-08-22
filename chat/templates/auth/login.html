@@ -2,19 +2,19 @@
 {% block content %}
 
 <div class="login-page">
-  <h1>Login Page</h1>
+  <h1 class="login-page-title">Login Page</h1>
   <p id="wrongDataParagraph" style="color: red"></p>
   <form name="myForm" id="formLogin" onsubmit="loginForm(); return false" method="POST">
     {% csrf_token %}
     <input type="hidden" id="redirect" name="redirect" value="{{ redirect }}">
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-      <input onfocus="removeErrorMessage()" class="mdl-textfield__input" id="username" name="username" type="text"
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%">
+      <input onfocus="removeErrorMessage()" class="mdl-textfield__input"; id="username" name="username" type="text"
         id="sample3" min="3">
       <label class="mdl-textfield__label" for="sample3">Username...</label>
     </div>
     <span style="color: red; padding: 8px;" id="usernameError"></span>
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-      <input onfocus="removeErrorMessage()" class="mdl-textfield__input" id="password" name="password" type="password"
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%">
+      <input onfocus="removeErrorMessage()" class="mdl-textfield__input"; id="password" name="password" type="password"
         id="sample3" min="6">
       <label class="mdl-textfield__label" for="sample3">Password...</label>
     </div>
