@@ -85,7 +85,7 @@
     }
 
     function getFormData() {
-        let formData = new FormaData();
+        let formData = new FormData();
         let csrf_token = '{{ csrf_token }}'
         formData.append('csrfmiddlewaretoken', csrf_token);
         formData.append('username', username.value);
