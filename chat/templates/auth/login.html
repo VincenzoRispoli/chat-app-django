@@ -30,38 +30,49 @@
 
 <script>
 
-
+  
   async function loginForm() {
-    let Username = document.forms['myForm']['username'].value;
-    let Password = document.forms['myForm']['password'].value;
-    if (Username.length < 3) {
-      document.getElementById('usernameError').innerHTML = 'Username is too short, he must to have at least 3 characters';
-    } else if (Password.length <= 6) {
-      document.getElementById('passwordError').innerHTML = 'Password is too short, she must to have at least 6 characters';
+    if (username.value.length < 3) {
+      document.getElementById('usernameError').innerHTML = 'Username is too short, he must have at least 3 characters';
+    } else if (password.value.length <= 6) {
+      document.getElementById('passwordError').innerHTML = 'Password is too short, she must have at least 6 characters';
     } else {
-      let fd = new FormData();
-      let csrf_token = '{{ csrf_token }}';
-      fd.append('csrfmiddlewaretoken', csrf_token);
-      fd.append('redirect', redirect.value);
-      fd.append('username', username.value);
-      fd.append('password', password.value);
-      try {
-        let response = await fetch('/login/', {
-          method: 'POST',
-          body: fd
-        })
-        if (response.ok) {
-          let data = await response.json();
-          window.location.href = data.url;
-        } else {
-          document.getElementById('wrongDataParagraph').innerHTML = 'Username or password are falsy'
-        }
-      } catch (e) {
-        console.error("An error was occurred", e);
-      }
+      let fd = getFormData();
+      getResponse(fd);
       username.value = "";
       password.value = "";
     }
+  }
+
+ async function getResponse(fd){
+    try {
+      let response = await fetch('/login/', {
+        method: 'POST',
+        body: fd
+      })
+      checkResponse(response);
+    } catch (e) {
+      console.error("An error was occurred", e);
+    }
+  }
+
+  async function checkResponse(response){
+    if (response.ok) {
+      let data = await response.json();
+      window.location.href = data.url;
+    } else {
+      document.getElementById('wrongDataParagraph').innerHTML = 'Username or password are falsy'
+    }
+  }
+
+  function getFormData(){
+    let formData = new FormData();
+    let csrf_token = '{{ csrf_token }}';
+    formData.append('csrfmiddlewaretoken', csrf_token);
+    formData.append('redirect', redirect.value);
+    formData.append('username', username.value);
+    formData.append('password', password.value);
+    return formData
   }
 
   username.addEventListener('input', () => {

@@ -58,34 +58,40 @@
     })
 
     async function register() {
-        let Username = document.forms['registerForm']['username'].value;
-        let Email = document.forms['registerForm']['email'].value;
-        let Password = document.forms['registerForm']['password'].value;
         let validRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        if (Username.length >= 3 && Email.match(validRegex) && Password.length >= 6) {
-            let fd = new FormData();
-            let csrf_token = '{{ csrf_token }}'
-            fd.append('csrfmiddlewaretoken', csrf_token);
-            fd.append('username', username.value);
-            fd.append('email', email.value);
-            fd.append('password', password.value);
-            try {
-                let response = await fetch('/register/', {
-                    method: 'POST',
-                    body: fd
-                })
-                let data = await response.json();
-                if (data.status == 'success') {
-                    window.location.href = data.url
-                } else {
-                    console.log('An error was occurred');
-                }
-            } catch (e) {
-                console.error("An error was occurred", e);
-            }
+        if (username.value.length >= 3 && email.value.match(validRegex) && password.value.length >= 6) {
+            let fd = getFormData();
+            checkResponse(fd);
         } else {
             console.log('An error occurred', Email);
         }
+    }
+
+    async function checkResponse(fd){
+        try {
+            let response = await fetch('/register/', {
+                method: 'POST',
+                body: fd
+            })
+            let data = await response.json();
+            if (data.status == 'success') {
+                window.location.href = data.url
+            } else {
+                console.log('An error was occurred');
+            }
+        } catch (e) {
+            console.error("An error was occurred", e);
+        }
+    }
+
+    function getFormData() {
+        let formData = new FormaData();
+        let csrf_token = '{{ csrf_token }}'
+        formData.append('csrfmiddlewaretoken', csrf_token);
+        formData.append('username', username.value);
+        formData.append('email', email.value);
+        formData.append('password', password.value);
+        return formData
     }
 
 </script>

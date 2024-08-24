@@ -75,13 +75,15 @@
 <script>
 
   async function sendMessage() {
-    let fd = new FormData();
-    let csrf_token = '{{ csrf_token }}';
+    let fd = getFormData();
+    let date = getDate();
     let user = '{{request.user.username}}';
     let author = '{{message}}';
-    fd.append('csrfmiddlewaretoken', csrf_token);
-    fd.append('textmessage', messageField.value)
-    let date = getDate()
+    checkResponse(fd, date, user);
+    messageField.value = "";
+  }
+
+  async function checkResponse(fd, date, user) {
     try {
       let response = await fetch('/chat/', {
         method: 'POST',
@@ -89,32 +91,39 @@
       })
       let responseAsJson = await response.json();
       let parsedResponse = JSON.parse(responseAsJson);
-      console.log(parsedResponse);
-      console.log(author);
-
-      messageContainer.innerHTML += `
-      <div class="author-message" id="messageJs";>
-        <span class="date">{{message.created_at}}</span>
-        <div style="display:flex; justify-content: flex-end">
-          <span class="name-and-text-author">${user} : <i style="color: gray">${messageField.value}</i></span>
-        </div>
-      </div>
-      `
-      console.log("Success");
-      document.getElementById('messageJs').remove();
-      messageContainer.innerHTML += `
-        <div class="author-message">
-          <span class="date">${date}</span>
-          <div style="display:flex; justify-content: flex-end">
-            <span class="name-and-text-author">${user} : <i>${parsedResponse.fields.text}</i></span>
-          </div>
-        </div>
-        `
+      showTheMessages(fd, date, user, parsedResponse);
     } catch (e) {
       console.log('An error is occurred', e);
     }
+  }
 
-    messageField.value = "";
+  function showTheMessages(fd, date, user, parsedResponse) {
+    messageContainer.innerHTML += `
+    <div class="author-message" id="messageJs";>
+      <span class="date">{{message.created_at}}</span>
+      <div style="display:flex; justify-content: flex-end">
+        <span class="name-and-text-author">${user} : <i style="color: gray">${messageField.value}</i></span>
+      </div>
+    </div>
+    `
+    document.getElementById('messageJs').remove();
+
+    messageContainer.innerHTML += `
+      <div class="author-message">
+        <span class="date">${date}</span>
+        <div style="display:flex; justify-content: flex-end">
+          <span class="name-and-text-author">${user} : <i>${parsedResponse.fields.text}</i></span>
+        </div>
+      </div>
+      `
+  }
+
+  function getFormData() {
+    let formData = new FormData();
+    let csrf_token = '{{ csrf_token }}';
+    formData.append('csrfmiddlewaretoken', csrf_token);
+    formData.append('textmessage', messageField.value);
+    return formData
   }
 
   function getDate() {
